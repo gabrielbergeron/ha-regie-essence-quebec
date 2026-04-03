@@ -16,6 +16,7 @@ Cette intégration crée un appareil par station configurée et un capteur par t
 - Structure du dépôt compatible avec HACS
 - Un appareil par station-service configurée
 - Une entité capteur par type de carburant disponible pour chaque station configurée
+- Une entité capteur horodatée par station indiquant la dernière mise à jour du fournisseur
 - Interrogation mutualisée du flux de Régie Essence Québec pour toutes les stations configurées
 - Intervalle de rafraîchissement configurable avec un minimum de 5 minutes
 - Prise en charge de plusieurs stations suivies simultanément
@@ -37,6 +38,8 @@ Cette intégration crée un appareil par station configurée et un capteur par t
 Chaque entrée configurée représente une station. Vous pouvez en ajouter autant que vous le souhaitez.
 
 Pour chaque station, l'intégration crée des capteurs distincts pour les types de carburant renvoyés par le flux, par exemple `Regulier`, `Super` ou `Diesel`.
+
+Elle crée aussi un capteur d'horodatage au niveau de la station indiquant la dernière mise à jour du fournisseur.
 
 L'assistant de configuration prend en charge les champs suivants :
 

@@ -16,6 +16,7 @@ This integration creates one device per configured station and one sensor per av
 - HACS-compatible repository structure
 - One device per configured gas station
 - One sensor entity per available fuel type for each configured station
+- One timestamp sensor per station showing the last provider update
 - Shared polling of the Régie Essence Québec feed for all configured stations
 - Configurable refresh interval with a minimum of 5 minutes
 - Support for multiple tracked stations
@@ -37,6 +38,8 @@ This integration creates one device per configured station and one sensor per av
 Each configured entry represents one station. You can add as many stations as you want.
 
 For each station, the integration creates separate sensors for the fuel types returned by the feed, for example `Regulier`, `Super`, or `Diesel`.
+
+It also creates a station-level timestamp sensor named `Last provider update`.
 
 The config flow supports these fields:
 
