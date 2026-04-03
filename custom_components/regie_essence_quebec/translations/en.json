@@ -23,5 +23,16 @@
     "abort": {
       "already_configured": "This station is already configured."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Integration options",
+        "description": "Choose how often the integration refreshes the station feed. The minimum is 5 minutes.",
+        "data": {
+          "update_interval_minutes": "Update interval (minutes)"
+        }
+      }
+    }
   }
 }

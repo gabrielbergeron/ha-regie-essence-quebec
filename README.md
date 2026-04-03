@@ -17,6 +17,7 @@ This integration creates one device per configured station and one sensor per av
 - One device per configured gas station
 - One sensor entity per available fuel type for each configured station
 - Shared polling of the Régie Essence Québec feed for all configured stations
+- Configurable refresh interval with a minimum of 5 minutes
 - Support for multiple tracked stations
 
 ## Installation via HACS
@@ -45,6 +46,10 @@ The config flow supports these fields:
 - `brand` optional
 - `entity_name` optional
 
+After a station is added, you can open the integration options to change the refresh interval. The minimum allowed value is 5 minutes.
+
+The refresh interval is global for the whole integration. Changing it from any configured station applies the same value to all configured stations.
+
 ## Station Matching
 
 Station matching is accent-insensitive and uses exact comparisons on the values you provide.
@@ -65,6 +70,8 @@ Data is fetched from the official Régie Essence Québec feed:
 `https://regieessencequebec.ca/stations.geojson.gz`
 
 The upstream dataset is updated approximately every 5 minutes.
+
+Each fuel sensor also exposes provider update metadata in its attributes, including the last provider timestamp and the number of minutes since the upstream feed was updated.
 
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge

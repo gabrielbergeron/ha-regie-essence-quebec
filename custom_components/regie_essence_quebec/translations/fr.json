@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Ajouter une station-service du Québec",
-        "description": "Créez un capteur Home Assistant pour une station précise provenant du flux de la Régie de l’énergie du Québec. Utilisez l’adresse ou le code postal lorsque le nom de la station retourne plusieurs résultats. Candidats correspondants : {candidates}",
+        "description": "Créez un capteur Home Assistant pour une station précise provenant du flux de Régie Essence Québec. Utilisez l'adresse ou le code postal lorsque le nom de la station est courant. Candidats correspondants : {candidates}",
         "data": {
           "name": "Nom de la station",
           "address": "Adresse",
@@ -22,6 +22,17 @@
     },
     "abort": {
       "already_configured": "Cette station est déjà configurée."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options de l'intégration",
+        "description": "Choisissez la fréquence de rafraîchissement du flux des stations. Le minimum est de 5 minutes.",
+        "data": {
+          "update_interval_minutes": "Intervalle de mise à jour (minutes)"
+        }
+      }
     }
   }
 }

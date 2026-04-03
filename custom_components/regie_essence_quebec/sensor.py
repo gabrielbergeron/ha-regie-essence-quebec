@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorEntity
+from datetime import UTC, datetime
+
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -44,6 +46,7 @@ class RegieEssenceQuebecFuelSensor(CoordinatorEntity[RegieEssenceDataUpdateCoord
     _attr_icon = "mdi:gas-station"
     _attr_native_unit_of_measurement = "c/L"
     _attr_suggested_display_precision = 1
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
@@ -101,7 +104,7 @@ class RegieEssenceQuebecFuelSensor(CoordinatorEntity[RegieEssenceDataUpdateCoord
         if snapshot is None:
             return attributes
 
-        attributes["generated_at"] = snapshot.generated_at
+        attributes["provider_last_update"] = snapshot.generated_at
 
         match = self._match_result
         if match.station is None:
@@ -116,6 +119,7 @@ class RegieEssenceQuebecFuelSensor(CoordinatorEntity[RegieEssenceDataUpdateCoord
                 "match_status": "matched",
                 "fuel_type": self._fuel_name,
                 "fuel_slug": self._fuel_slug,
+                "provider_update_age_minutes": _minutes_since_timestamp(snapshot.generated_at),
                 "raw_price": fuel_price.raw_price if fuel_price else None,
                 "available_in_feed": fuel_price.is_available if fuel_price else False,
                 "station_name": station.name,
@@ -166,3 +170,20 @@ def _find_match_result(
         postal_code=selector.get(CONF_POSTAL_CODE, ""),
         brand=selector.get(CONF_BRAND, ""),
     )
+
+
+def _minutes_since_timestamp(value: str) -> int | None:
+    if not value:
+        return None
+
+    normalized = value.replace("Z", "+00:00")
+    try:
+        timestamp = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=UTC)
+
+    delta = datetime.now(UTC) - timestamp.astimezone(UTC)
+    return max(int(delta.total_seconds() // 60), 0)

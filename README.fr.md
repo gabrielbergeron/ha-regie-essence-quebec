@@ -17,6 +17,7 @@ Cette intégration crée un appareil par station configurée et un capteur par t
 - Un appareil par station-service configurée
 - Une entité capteur par type de carburant disponible pour chaque station configurée
 - Interrogation mutualisée du flux de Régie Essence Québec pour toutes les stations configurées
+- Intervalle de rafraîchissement configurable avec un minimum de 5 minutes
 - Prise en charge de plusieurs stations suivies simultanément
 
 ## Installation via HACS
@@ -45,6 +46,10 @@ L'assistant de configuration prend en charge les champs suivants :
 - `brand` facultatif
 - `entity_name` facultatif
 
+Après l'ajout d'une station, vous pouvez ouvrir les options de l'intégration pour modifier l'intervalle de mise à jour. La valeur minimale autorisée est de 5 minutes.
+
+L'intervalle de mise à jour est global pour toute l'intégration. Le modifier depuis n'importe quelle station configurée applique la même valeur à toutes les stations configurées.
+
 ## Correspondance des stations
 
 La correspondance est insensible aux accents et s'appuie sur des comparaisons exactes des valeurs fournies.
@@ -65,6 +70,8 @@ Les données proviennent du flux officiel de Régie Essence Québec :
 `https://regieessencequebec.ca/stations.geojson.gz`
 
 La source amont est mise à jour environ toutes les 5 minutes.
+
+Chaque capteur de carburant expose aussi des attributs de mise à jour du fournisseur, dont l'horodatage du dernier flux reçu et le nombre de minutes écoulées depuis la dernière mise à jour amont.
 
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge

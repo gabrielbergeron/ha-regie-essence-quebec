@@ -3,11 +3,21 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlowWithReload
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CONF_BRAND, CONF_ENTITY_NAME, CONF_FUEL_TYPES, CONF_POSTAL_CODE, DOMAIN
+from .const import (
+    CONF_BRAND,
+    CONF_ENTITY_NAME,
+    CONF_FUEL_TYPES,
+    CONF_POSTAL_CODE,
+    CONF_UPDATE_INTERVAL_MINUTES,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    MINIMUM_UPDATE_INTERVAL_MINUTES,
+)
 from .feed import (
     MatchResult,
     RegieEssenceApi,
@@ -28,6 +38,15 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+OPTIONS_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_UPDATE_INTERVAL_MINUTES): vol.All(
+            vol.Coerce(int),
+            vol.Range(min=MINIMUM_UPDATE_INTERVAL_MINUTES),
+        ),
+    }
+)
+
 
 class CannotConnect(Exception):
     """Raised when the integration cannot reach the station feed."""
@@ -40,6 +59,11 @@ class InvalidStationSelection(Exception):
 
 class RegieEssenceQuebecConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> "RegieEssenceQuebecOptionsFlow":
+        return RegieEssenceQuebecOptionsFlow()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         errors: dict[str, str] = {}
@@ -107,3 +131,33 @@ async def validate_station_selection(hass, user_input: dict[str, str]):
         raise InvalidStationSelection(match)
 
     return match.station
+
+
+class RegieEssenceQuebecOptionsFlow(OptionsFlowWithReload):
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
+        if user_input is not None:
+            normalized_options = {
+                CONF_UPDATE_INTERVAL_MINUTES: max(
+                    int(user_input[CONF_UPDATE_INTERVAL_MINUTES]),
+                    MINIMUM_UPDATE_INTERVAL_MINUTES,
+                )
+            }
+            for entry in self.hass.config_entries.async_entries(DOMAIN):
+                self.hass.config_entries.async_update_entry(entry, options=normalized_options)
+
+            return self.async_create_entry(data=normalized_options)
+
+        default_minutes = int(
+            self.config_entry.options.get(
+                CONF_UPDATE_INTERVAL_MINUTES,
+                int(DEFAULT_SCAN_INTERVAL.total_seconds() // 60),
+            )
+        )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self.add_suggested_values_to_schema(
+                OPTIONS_SCHEMA,
+                {CONF_UPDATE_INTERVAL_MINUTES: default_minutes},
+            ),
+        )
