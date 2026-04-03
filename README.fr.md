@@ -1,0 +1,71 @@
+# HA Régie Essence QC
+
+[Français](./README.fr.md) | [English](./README.md)
+
+[![GitHub Release][releases-shield]][releases]
+[![hacs][hacsbadge]][hacs]
+![Project Maintenance][maintenance-shield]
+
+Intégration personnalisée Home Assistant permettant de suivre les prix de l'essence au Québec à partir du flux public de [Régie Essence Québec](https://regieessencequebec.ca/).
+
+Cette intégration crée un capteur par station configurée et expose tous les prix de carburant disponibles comme attributs de l'entité. Plusieurs stations peuvent être ajoutées depuis l'interface de Home Assistant, tandis qu'un coordinateur partagé optimise les rafraîchissements du flux.
+
+## Fonctionnalités
+
+- Intégration Home Assistant native avec assistant de configuration
+- Structure du dépôt compatible avec HACS
+- Une entité capteur par station-service configurée
+- Tous les types de carburant disponibles sont exposés comme attributs de l'entité
+- Interrogation mutualisée du flux de Régie Essence Québec pour toutes les stations configurées
+- Prise en charge de plusieurs stations suivies simultanément
+
+## Installation via HACS
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=gabrielbergeron&repository=ha-regie-essence-quebec)
+
+1. Suivez le guide des dépôts personnalisés HACS disponible [ici](https://hacs.xyz/docs/faq/custom_repositories/).
+2. Ajoutez l'URL du dépôt : `https://github.com/gabrielbergeron/ha-regie-essence-quebec`
+3. Sélectionnez la catégorie `Integration`
+4. Installez l'intégration depuis HACS
+5. Redémarrez Home Assistant
+6. Ouvrez `Paramètres -> Appareils et services`
+7. Cliquez sur `+ Ajouter une intégration`, puis recherchez `Régie Essence Québec`
+
+## Configuration
+
+Chaque entrée configurée représente une station. Vous pouvez en ajouter autant que vous le souhaitez.
+
+L'assistant de configuration prend en charge les champs suivants :
+
+- `name` obligatoire
+- `address` facultatif, mais recommandé
+- `postal_code` facultatif, mais fortement recommandé lorsque le nom de la station est courant
+- `brand` facultatif
+- `entity_name` facultatif
+
+## Correspondance des stations
+
+La correspondance est insensible aux accents et s'appuie sur des comparaisons exactes des valeurs fournies.
+
+Pour obtenir les meilleurs résultats :
+
+- Utilisez le nom exact de la station tel qu'il apparaît dans le flux de Régie Essence Québec
+- Ajoutez `address` lorsque le nom de la station est courant
+- Ajoutez `postal_code` pour distinguer des stations voisines aux noms similaires
+- Ajoutez `brand` lorsqu'un même nom de station apparaît sous plusieurs bannières
+
+Si une station ne peut pas être associée de manière exacte, l'intégration affiche une erreur lors de la configuration et propose des correspondances candidates lorsque c'est possible.
+
+## Source des données
+
+Les données proviennent du flux officiel de Régie Essence Québec :
+
+`https://regieessencequebec.ca/stations.geojson.gz`
+
+La source amont est mise à jour environ toutes les 5 minutes.
+
+[hacs]: https://github.com/hacs/integration
+[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Gabriel%20Bergeron-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/gabrielbergeron/ha-regie-essence-quebec.svg?style=for-the-badge
+[releases]: https://github.com/gabrielbergeron/ha-regie-essence-quebec/releases

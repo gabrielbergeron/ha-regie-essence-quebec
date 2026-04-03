@@ -1,36 +1,71 @@
-# HA Regie Essence QC
+# HA Régie Essence QC
 
-Home Assistant custom integration for tracking Quebec gas prices from the Regie Essence Quebec public station feed.
+[English](./README.md) | [Français](./README.fr.md)
 
-This repository now targets HACS and native Home Assistant config entries, not Supervisor add-ons.
+[![GitHub Release][releases-shield]][releases]
+[![hacs][hacsbadge]][hacs]
+![Project Maintenance][maintenance-shield]
 
-## What it does
+Home Assistant custom integration for tracking Quebec gas prices from the public [Régie Essence Québec](https://regieessencequebec.ca/) station feed.
 
-- Adds one sensor entity per configured gas station
-- Stores all gas type prices on that entity as attributes
-- Uses the Regie Essence Quebec station feed at `https://regieessencequebec.ca/stations.geojson.gz`
-- Shares one feed refresh across all configured stations
+This integration creates one sensor per configured station and exposes all available fuel prices as entity attributes. Multiple stations can be added through the Home Assistant UI, while a shared coordinator keeps feed refreshes efficient.
 
-## Installation with HACS
+## Features
 
-1. Add this repository as a custom repository in HACS
-2. Choose the repository type `Integration`
-3. Install it
-4. Restart Home Assistant
-5. Go to `Settings -> Devices & Services -> Add Integration`
-6. Search for `Regie Essence Quebec`
-7. Add one config entry per station you want to track
+- Native Home Assistant integration with config flow
+- HACS-compatible repository structure
+- One sensor entity per configured gas station
+- All available fuel types exposed as attributes on the station entity
+- Shared polling of the Régie Essence Québec feed for all configured stations
+- Support for multiple tracked stations
 
-Repository URL: [ha-regie-essence-quebec](https://github.com/gabrielbergeron/ha-regie-essence-quebec)
+## Installation via HACS
 
-## Station matching
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=gabrielbergeron&repository=ha-regie-essence-quebec)
 
-Each config entry asks for:
+1. Follow the HACS custom repository guide [here](https://hacs.xyz/docs/faq/custom_repositories/).
+2. Add the repository URL: `https://github.com/gabrielbergeron/ha-regie-essence-quebec`
+3. Select the category type `Integration`
+4. Install the integration from HACS
+5. Restart Home Assistant
+6. Go to `Settings -> Devices & Services`
+7. Click `+ Add Integration` and search for `Régie Essence Québec`
+
+## Configuration
+
+Each configured entry represents one station. You can add as many stations as you want.
+
+The config flow supports these fields:
 
 - `name` required
 - `address` optional but recommended
-- `postal_code` optional and strongly recommended when names are common
+- `postal_code` optional and strongly recommended when station names are common
 - `brand` optional
 - `entity_name` optional
 
-Matching is accent-insensitive and uses exact comparisons on the fields you provide.
+## Station Matching
+
+Station matching is accent-insensitive and uses exact comparisons on the values you provide.
+
+For the best results:
+
+- Use the exact station name from the Régie Essence Québec feed
+- Add `address` when the station name is common
+- Add `postal_code` to disambiguate nearby stations with similar names
+- Add `brand` when a station name appears under multiple banners
+
+If a station cannot be matched exactly, the integration will show an error during setup and provide candidate matches when possible.
+
+## Data Source
+
+Data is fetched from the official Régie Essence Québec feed:
+
+`https://regieessencequebec.ca/stations.geojson.gz`
+
+The upstream dataset is updated approximately every 5 minutes.
+
+[hacs]: https://github.com/hacs/integration
+[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Gabriel%20Bergeron-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/gabrielbergeron/ha-regie-essence-quebec.svg?style=for-the-badge
+[releases]: https://github.com/gabrielbergeron/ha-regie-essence-quebec/releases
