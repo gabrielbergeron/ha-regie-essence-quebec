@@ -105,15 +105,9 @@ class RegieEssenceQuebecBaseSensor(CoordinatorEntity[RegieEssenceDataUpdateCoord
             return attributes
 
         station = match.station
-        fuel_price = self._fuel_price
         attributes.update(
             {
                 "match_status": "matched",
-                "fuel_type": self._fuel_name,
-                "fuel_slug": self._fuel_slug,
-                "provider_update_age_minutes": _minutes_since_timestamp(snapshot.generated_at),
-                "raw_price": fuel_price.raw_price if fuel_price else None,
-                "available_in_feed": fuel_price.is_available if fuel_price else False,
                 "station_name": station.name,
                 "brand": station.brand,
                 "status": station.status,
@@ -181,6 +175,27 @@ class RegieEssenceQuebecFuelSensor(RegieEssenceQuebecBaseSensor):
     def native_value(self) -> float | None:
         fuel_price = self._fuel_price
         return fuel_price.price_cents_per_litre if fuel_price is not None else None
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        attributes = super().extra_state_attributes
+        match = self._match_result
+        if match.station is None:
+            return attributes
+
+        fuel_price = self._fuel_price
+        attributes.update(
+            {
+                "fuel_type": self._fuel_name,
+                "fuel_slug": self._fuel_slug,
+                "provider_update_age_minutes": _minutes_since_timestamp(
+                    self.coordinator.data.generated_at if self.coordinator.data else ""
+                ),
+                "raw_price": fuel_price.raw_price if fuel_price else None,
+                "available_in_feed": fuel_price.is_available if fuel_price else False,
+            }
+        )
+        return attributes
 
     @property
     def _fuel_price(self) -> FuelPrice | None:
