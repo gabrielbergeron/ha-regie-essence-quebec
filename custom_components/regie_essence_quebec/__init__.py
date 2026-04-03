@@ -4,7 +4,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
-from .const import COORDINATOR, DOMAIN, ENTRY_DATA, PLATFORMS
+from .const import CONF_FUEL_TYPES, COORDINATOR, DOMAIN, ENTRY_DATA, PLATFORMS
 from .coordinator import RegieEssenceDataUpdateCoordinator
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -30,6 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "postal_code": str(entry.data.get("postal_code", "")),
         "brand": str(entry.data.get("brand", "")),
         "entity_name": str(entry.data.get("entity_name", "")),
+        "fuel_types": entry.data.get(CONF_FUEL_TYPES, []),
     }
 
     domain_data.setdefault(ENTRY_DATA, {})[entry.entry_id] = entry_data

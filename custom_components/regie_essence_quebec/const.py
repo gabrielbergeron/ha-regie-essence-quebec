@@ -10,6 +10,7 @@ PLATFORMS = [Platform.SENSOR]
 
 CONF_BRAND = "brand"
 CONF_ENTITY_NAME = "entity_name"
+CONF_FUEL_TYPES = "fuel_types"
 CONF_POSTAL_CODE = "postal_code"
 
 FEED_URL = "https://regieessencequebec.ca/stations.geojson.gz"

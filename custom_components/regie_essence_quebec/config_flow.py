@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CONF_BRAND, CONF_ENTITY_NAME, CONF_POSTAL_CODE, DOMAIN
+from .const import CONF_BRAND, CONF_ENTITY_NAME, CONF_FUEL_TYPES, CONF_POSTAL_CODE, DOMAIN
 from .feed import (
     MatchResult,
     RegieEssenceApi,
@@ -68,7 +68,16 @@ class RegieEssenceQuebecConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=build_entry_title(cleaned_input, station),
-                    data=cleaned_input,
+                    data={
+                        **cleaned_input,
+                        CONF_FUEL_TYPES: [
+                            {
+                                "slug": price.slug,
+                                "name": price.gas_type,
+                            }
+                            for price in station.prices
+                        ],
+                    },
                 )
 
         return self.async_show_form(

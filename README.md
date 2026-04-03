@@ -8,14 +8,14 @@
 
 Home Assistant custom integration for tracking Quebec gas prices from the public [Régie Essence Québec](https://regieessencequebec.ca/) station feed.
 
-This integration creates one sensor per configured station and exposes all available fuel prices as entity attributes. Multiple stations can be added through the Home Assistant UI, while a shared coordinator keeps feed refreshes efficient.
+This integration creates one device per configured station and one sensor per available fuel type. Multiple stations can be added through the Home Assistant UI, while a shared coordinator keeps feed refreshes efficient.
 
 ## Features
 
 - Native Home Assistant integration with config flow
 - HACS-compatible repository structure
-- One sensor entity per configured gas station
-- All available fuel types exposed as attributes on the station entity
+- One device per configured gas station
+- One sensor entity per available fuel type for each configured station
 - Shared polling of the Régie Essence Québec feed for all configured stations
 - Support for multiple tracked stations
 
@@ -34,6 +34,8 @@ This integration creates one sensor per configured station and exposes all avail
 ## Configuration
 
 Each configured entry represents one station. You can add as many stations as you want.
+
+For each station, the integration creates separate sensors for the fuel types returned by the feed, for example `Regulier`, `Super`, or `Diesel`.
 
 The config flow supports these fields:
 

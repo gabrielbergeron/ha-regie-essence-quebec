@@ -8,14 +8,14 @@
 
 Intégration personnalisée Home Assistant permettant de suivre les prix de l'essence au Québec à partir du flux public de [Régie Essence Québec](https://regieessencequebec.ca/).
 
-Cette intégration crée un capteur par station configurée et expose tous les prix de carburant disponibles comme attributs de l'entité. Plusieurs stations peuvent être ajoutées depuis l'interface de Home Assistant, tandis qu'un coordinateur partagé optimise les rafraîchissements du flux.
+Cette intégration crée un appareil par station configurée et un capteur par type de carburant disponible. Plusieurs stations peuvent être ajoutées depuis l'interface de Home Assistant, tandis qu'un coordinateur partagé optimise les rafraîchissements du flux.
 
 ## Fonctionnalités
 
 - Intégration Home Assistant native avec assistant de configuration
 - Structure du dépôt compatible avec HACS
-- Une entité capteur par station-service configurée
-- Tous les types de carburant disponibles sont exposés comme attributs de l'entité
+- Un appareil par station-service configurée
+- Une entité capteur par type de carburant disponible pour chaque station configurée
 - Interrogation mutualisée du flux de Régie Essence Québec pour toutes les stations configurées
 - Prise en charge de plusieurs stations suivies simultanément
 
@@ -34,6 +34,8 @@ Cette intégration crée un capteur par station configurée et expose tous les p
 ## Configuration
 
 Chaque entrée configurée représente une station. Vous pouvez en ajouter autant que vous le souhaitez.
+
+Pour chaque station, l'intégration crée des capteurs distincts pour les types de carburant renvoyés par le flux, par exemple `Regulier`, `Super` ou `Diesel`.
 
 L'assistant de configuration prend en charge les champs suivants :
 

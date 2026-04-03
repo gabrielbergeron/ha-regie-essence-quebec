@@ -9,9 +9,9 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_BRAND, CONF_ENTITY_NAME, CONF_POSTAL_CODE, COORDINATOR, DOMAIN, ENTRY_DATA
+from .const import CONF_BRAND, CONF_ENTITY_NAME, CONF_FUEL_TYPES, CONF_POSTAL_CODE, COORDINATOR, DOMAIN, ENTRY_DATA
 from .coordinator import RegieEssenceDataUpdateCoordinator
-from .feed import MatchResult, choose_primary_price, find_station_matches, selector_unique_id
+from .feed import FuelPrice, MatchResult, find_station_matches, selector_unique_id
 
 
 async def async_setup_entry(
@@ -22,13 +22,26 @@ async def async_setup_entry(
     domain_data = hass.data[DOMAIN]
     coordinator: RegieEssenceDataUpdateCoordinator = domain_data[COORDINATOR]
     selector = domain_data[ENTRY_DATA][entry.entry_id]
-    async_add_entities([RegieEssenceQuebecStationSensor(coordinator, entry, selector)])
+    fuel_types = selector.get(CONF_FUEL_TYPES, [])
+    if not fuel_types:
+        match = _find_match_result(coordinator, selector)
+        fuel_types = (
+            [{"slug": price.slug, "name": price.gas_type} for price in match.station.prices]
+            if match.station is not None
+            else []
+        )
+
+    async_add_entities(
+        [
+            RegieEssenceQuebecFuelSensor(coordinator, entry, selector, fuel_type["slug"], fuel_type["name"])
+            for fuel_type in fuel_types
+        ]
+    )
 
 
-class RegieEssenceQuebecStationSensor(CoordinatorEntity[RegieEssenceDataUpdateCoordinator], SensorEntity):
+class RegieEssenceQuebecFuelSensor(CoordinatorEntity[RegieEssenceDataUpdateCoordinator], SensorEntity):
     _attr_has_entity_name = True
     _attr_icon = "mdi:gas-station"
-    _attr_name = "Prices"
     _attr_native_unit_of_measurement = "c/L"
     _attr_suggested_display_precision = 1
 
@@ -37,18 +50,23 @@ class RegieEssenceQuebecStationSensor(CoordinatorEntity[RegieEssenceDataUpdateCo
         coordinator: RegieEssenceDataUpdateCoordinator,
         entry: ConfigEntry,
         selector: dict[str, str],
+        fuel_slug: str,
+        fuel_name: str,
     ) -> None:
         super().__init__(coordinator)
         self._entry = entry
         self._selector = selector
         self._station_title = entry.title
+        self._fuel_slug = fuel_slug
+        self._fuel_name = fuel_name
         self._selector_id = selector_unique_id(
             selector.get(CONF_NAME, ""),
             selector.get(CONF_ADDRESS, ""),
             selector.get(CONF_POSTAL_CODE, ""),
             selector.get(CONF_BRAND, ""),
         )
-        self._attr_unique_id = f"{self._selector_id}_prices"
+        self._attr_unique_id = f"{self._selector_id}_{fuel_slug}"
+        self._attr_name = fuel_name
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -62,16 +80,12 @@ class RegieEssenceQuebecStationSensor(CoordinatorEntity[RegieEssenceDataUpdateCo
 
     @property
     def available(self) -> bool:
-        return self.coordinator.last_update_success
+        return self.coordinator.last_update_success and self._fuel_price is not None
 
     @property
     def native_value(self) -> float | None:
-        match = self._match_result
-        if match.station is None:
-            return None
-
-        primary_price = choose_primary_price(match.station)
-        return primary_price.price_cents_per_litre if primary_price else None
+        fuel_price = self._fuel_price
+        return fuel_price.price_cents_per_litre if fuel_price is not None else None
 
     @property
     def extra_state_attributes(self) -> dict:
@@ -96,11 +110,14 @@ class RegieEssenceQuebecStationSensor(CoordinatorEntity[RegieEssenceDataUpdateCo
             return attributes
 
         station = match.station
-        primary_price = choose_primary_price(station)
+        fuel_price = self._fuel_price
         attributes.update(
             {
                 "match_status": "matched",
-                "state_fuel_type": primary_price.gas_type if primary_price else None,
+                "fuel_type": self._fuel_name,
+                "fuel_slug": self._fuel_slug,
+                "raw_price": fuel_price.raw_price if fuel_price else None,
+                "available_in_feed": fuel_price.is_available if fuel_price else False,
                 "station_name": station.name,
                 "brand": station.brand,
                 "status": station.status,
@@ -109,33 +126,43 @@ class RegieEssenceQuebecStationSensor(CoordinatorEntity[RegieEssenceDataUpdateCo
                 "region": station.region,
                 "latitude": station.latitude,
                 "longitude": station.longitude,
-                "prices": {},
             }
         )
-
-        for price in station.prices:
-            attributes["prices"][price.slug] = {
-                "label": price.gas_type,
-                "price_cents_per_litre": price.price_cents_per_litre,
-                "raw_price": price.raw_price,
-                "available": price.is_available,
-            }
-            attributes[f"{price.slug}_price_cents_per_litre"] = price.price_cents_per_litre
-            attributes[f"{price.slug}_raw_price"] = price.raw_price
-            attributes[f"{price.slug}_available"] = price.is_available
 
         return attributes
 
     @property
     def _match_result(self) -> MatchResult:
-        snapshot = self.coordinator.data
-        if snapshot is None:
-            return MatchResult(station=None, error="feed_unavailable", candidates=[])
+        return _find_match_result(self.coordinator, self._selector)
 
-        return find_station_matches(
-            snapshot.stations,
-            name=self._selector.get(CONF_NAME, ""),
-            address=self._selector.get(CONF_ADDRESS, ""),
-            postal_code=self._selector.get(CONF_POSTAL_CODE, ""),
-            brand=self._selector.get(CONF_BRAND, ""),
+    @property
+    def _fuel_price(self) -> FuelPrice | None:
+        match = self._match_result
+        if match.station is None:
+            return None
+
+        return next(
+            (
+                price
+                for price in match.station.prices
+                if price.slug == self._fuel_slug
+            ),
+            None,
         )
+
+
+def _find_match_result(
+    coordinator: RegieEssenceDataUpdateCoordinator,
+    selector: dict[str, str],
+) -> MatchResult:
+    snapshot = coordinator.data
+    if snapshot is None:
+        return MatchResult(station=None, error="feed_unavailable", candidates=[])
+
+    return find_station_matches(
+        snapshot.stations,
+        name=selector.get(CONF_NAME, ""),
+        address=selector.get(CONF_ADDRESS, ""),
+        postal_code=selector.get(CONF_POSTAL_CODE, ""),
+        brand=selector.get(CONF_BRAND, ""),
+    )
