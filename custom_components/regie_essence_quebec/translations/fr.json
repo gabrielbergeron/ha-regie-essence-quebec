@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ajouter une station-service du Quebec",
+        "description": "Creez un capteur Home Assistant pour une station precise provenant du flux de la Regie de l'energie du Quebec. Utilisez l'adresse ou le code postal lorsque le nom de station est courant. Correspondances candidates : {candidates}",
+        "data": {
+          "name": "Nom de la station",
+          "address": "Adresse",
+          "postal_code": "Code postal",
+          "brand": "Banniere",
+          "entity_name": "Nom de l'entite"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de joindre le flux de la Regie Essence Quebec.",
+      "not_found": "Aucune correspondance exacte n'a ete trouvee pour cette station.",
+      "ambiguous": "Plus d'une station correspond. Precisez l'adresse, le code postal ou la banniere.",
+      "invalid_station": "La station selectionnee n'a pas pu etre validee.",
+      "unknown": "Erreur inattendue."
+    },
+    "abort": {
+      "already_configured": "Cette station est deja configuree."
+    }
+  }
+}

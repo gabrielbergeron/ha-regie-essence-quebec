@@ -21,7 +21,7 @@ This repository now targets HACS and native Home Assistant config entries, not S
 6. Search for `Regie Essence Quebec`
 7. Add one config entry per station you want to track
 
-Before publishing the repository, replace `your-github-user` in [manifest.json](C:\Users\berge\Documents\GIT\HARegieEssenceQC\custom_components\regie_essence_quebec\manifest.json) so the links point at `https://github.com/your-github-user/ha-regie-essence-quebec`.
+Repository URL: [ha-regie-essence-quebec](https://github.com/gabrielbergeron/ha-regie-essence-quebec)
 
 ## Station matching
 

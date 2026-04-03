@@ -1,0 +1,19 @@
+from __future__ import annotations
+
+from datetime import timedelta
+
+from homeassistant.const import Platform
+
+
+DOMAIN = "regie_essence_quebec"
+PLATFORMS = [Platform.SENSOR]
+
+CONF_BRAND = "brand"
+CONF_ENTITY_NAME = "entity_name"
+CONF_POSTAL_CODE = "postal_code"
+
+FEED_URL = "https://regieessencequebec.ca/stations.geojson.gz"
+DEFAULT_SCAN_INTERVAL = timedelta(minutes=5)
+
+COORDINATOR = "coordinator"
+ENTRY_DATA = "entry_data"

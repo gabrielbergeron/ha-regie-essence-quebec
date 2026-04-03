@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Quebec gas station",
+        "description": "Create one Home Assistant sensor for a specific station from the Regie Essence Quebec feed. Use address or postal code when the station name is common. Matching candidates: {candidates}",
+        "data": {
+          "name": "Station name",
+          "address": "Address",
+          "postal_code": "Postal code",
+          "brand": "Brand",
+          "entity_name": "Entity name"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to reach the Regie Essence Quebec feed.",
+      "not_found": "No exact station match was found.",
+      "ambiguous": "More than one station matched. Narrow it with address, postal code, or brand.",
+      "invalid_station": "The selected station could not be validated.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This station is already configured."
+    }
+  }
+}
