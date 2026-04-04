@@ -7,6 +7,8 @@
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/gabrielbergeron/ha-regie-essence-quebec/issues",
-  "loggers": ["custom_components.regie_essence_quebec"],
+  "loggers": [
+    "custom_components.regie_essence_quebec"
+  ],
   "version": "0.1.0"
 }
