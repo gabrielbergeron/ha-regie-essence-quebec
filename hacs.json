@@ -1,8 +1,6 @@
 {
   "name": "Régie Essence Québec",
   "homeassistant": "2024.12.0",
-  "zip_release": true,
-  "filename": "ha-regie-essence-quebec.zip",
   "render_readme": true,
   "country": ["CA"]
 }

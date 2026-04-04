@@ -58,30 +58,3 @@ jobs:
         shell: bash
         run: |
           git push origin HEAD:${{ github.event.release.target_commitish }}
-
-      - name: Build release zip
-        shell: bash
-        run: |
-          python - <<'PY'
-          import pathlib
-          import subprocess
-          import zipfile
-
-          output = pathlib.Path("ha-regie-essence-quebec.zip")
-          tracked_files = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
-
-          with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-            for file_name in tracked_files:
-              path = pathlib.Path(file_name)
-              if path.is_file():
-                archive.write(path, arcname=file_name)
-          PY
-
-      - name: Upload release asset
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          gh release upload "${{ github.event.release.tag_name }}" \
-            "ha-regie-essence-quebec.zip" \
-            --clobber
