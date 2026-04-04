@@ -10,5 +10,5 @@
   "loggers": [
     "custom_components.regie_essence_quebec"
   ],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
