@@ -10,7 +10,7 @@
       },
       "manual": {
         "title": "Manual setup",
-        "description": "Create one Home Assistant station entry by entering the station details manually. Use address or postal code when the station name is common. Matching candidates: {candidates}",
+        "description": "Create one Home Assistant station entry by entering the station details manually.\n\nExample:\nYou can enter a station name like `9358-4402 Québec inc.`\n\nIf that name returns more than one result, add one or more of the following to narrow the match:\n- `Brand`\n- `Postal code`\n- `Address`\n\nYou can find those details on the Régie Essence Québec website:\nhttps://regieessencequebec.ca/\n\nMatching candidates: {candidates}",
         "data": {
           "name": "Station name",
           "address": "Address",

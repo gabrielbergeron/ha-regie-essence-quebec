@@ -10,7 +10,7 @@
       },
       "manual": {
         "title": "Configuration manuelle",
-        "description": "Créez une entrée de station Home Assistant en saisissant manuellement les informations de la station. Utilisez l'adresse ou le code postal lorsque le nom de la station est courant. Candidats correspondants : {candidates}",
+        "description": "Créez une entrée de station Home Assistant en saisissant manuellement les informations de la station.\n\nExemple :\nVous pouvez entrer un nom de station comme `9358-4402 Québec inc.`\n\nSi ce nom retourne plus d'un résultat, ajoutez un ou plusieurs des éléments suivants pour préciser la correspondance :\n- `Bannière`\n- `Code postal`\n- `Adresse`\n\nVous pouvez trouver ces informations sur le site de Régie Essence Québec :\nhttps://regieessencequebec.ca/\n\nCandidats correspondants : {candidates}",
         "data": {
           "name": "Nom de la station",
           "address": "Adresse",
