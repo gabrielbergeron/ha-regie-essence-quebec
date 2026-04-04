@@ -37,6 +37,11 @@ Cette intégration crée un appareil par station configurée et un capteur par t
 
 Chaque entrée configurée représente une station. Vous pouvez en ajouter autant que vous le souhaitez.
 
+Lors de l'ajout d'une nouvelle station, l'intégration vous permet de choisir entre :
+
+- `Configuration manuelle` : vous saisissez vous-même les informations de la station
+- `Utiliser l'emplacement de Home Assistant` : l'intégration sélectionne automatiquement la station la plus proche de l'emplacement principal de Home Assistant
+
 Pour chaque station, l'intégration crée des capteurs distincts pour les types de carburant renvoyés par le flux, par exemple `Regulier`, `Super` ou `Diesel`.
 
 Elle crée aussi un capteur d'horodatage au niveau de la station indiquant la dernière mise à jour du fournisseur.

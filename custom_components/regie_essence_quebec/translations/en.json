@@ -3,12 +3,26 @@
     "step": {
       "user": {
         "title": "Add Quebec gas station",
-        "description": "Create one Home Assistant sensor for a specific station from the Régie Essence Québec feed. Use address or postal code when the station name is common. Matching candidates: {candidates}",
+        "menu_options": {
+          "manual": "Manual setup",
+          "location": "Use Home Assistant location"
+        }
+      },
+      "manual": {
+        "title": "Manual setup",
+        "description": "Create one Home Assistant station entry by entering the station details manually. Use address or postal code when the station name is common. Matching candidates: {candidates}",
         "data": {
           "name": "Station name",
           "address": "Address",
           "postal_code": "Postal code",
           "brand": "Brand",
+          "entity_name": "Entity name"
+        }
+      },
+      "location": {
+        "title": "Use Home Assistant location",
+        "description": "The closest station to your Home Assistant location is:\n\nName: {name}\nAddress: {address}\nPostal code: {postal_code}\nBrand: {brand}\nDistance: {distance_km} km\n\nYou can optionally set a custom entity name before adding it.",
+        "data": {
           "entity_name": "Entity name"
         }
       }
@@ -18,6 +32,8 @@
       "not_found": "No exact station match was found.",
       "ambiguous": "More than one station matched. Narrow it with address, postal code, or brand.",
       "invalid_station": "The selected station could not be validated.",
+      "location_not_set": "Home Assistant location is not configured.",
+      "no_station_with_coordinates": "No stations with coordinates were found in the provider feed.",
       "unknown": "Unexpected error."
     },
     "abort": {

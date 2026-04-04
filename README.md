@@ -37,6 +37,11 @@ This integration creates one device per configured station and one sensor per av
 
 Each configured entry represents one station. You can add as many stations as you want.
 
+When adding a new station, the integration lets you choose between:
+
+- `Manual setup`: enter the station details yourself
+- `Use Home Assistant location`: automatically select the closest station to your Home Assistant home location
+
 For each station, the integration creates separate sensors for the fuel types returned by the feed, for example `Regulier`, `Super`, or `Diesel`.
 
 It also creates a station-level timestamp sensor named `Last provider update`.

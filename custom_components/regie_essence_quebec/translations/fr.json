@@ -3,12 +3,26 @@
     "step": {
       "user": {
         "title": "Ajouter une station-service du Québec",
-        "description": "Créez un capteur Home Assistant pour une station précise provenant du flux de Régie Essence Québec. Utilisez l'adresse ou le code postal lorsque le nom de la station est courant. Candidats correspondants : {candidates}",
+        "menu_options": {
+          "manual": "Configuration manuelle",
+          "location": "Utiliser l'emplacement de Home Assistant"
+        }
+      },
+      "manual": {
+        "title": "Configuration manuelle",
+        "description": "Créez une entrée de station Home Assistant en saisissant manuellement les informations de la station. Utilisez l'adresse ou le code postal lorsque le nom de la station est courant. Candidats correspondants : {candidates}",
         "data": {
           "name": "Nom de la station",
           "address": "Adresse",
           "postal_code": "Code postal",
           "brand": "Bannière",
+          "entity_name": "Nom de l'entité"
+        }
+      },
+      "location": {
+        "title": "Utiliser l'emplacement de Home Assistant",
+        "description": "La station la plus proche de l'emplacement de votre instance Home Assistant est :\n\nNom : {name}\nAdresse : {address}\nCode postal : {postal_code}\nBannière : {brand}\nDistance : {distance_km} km\n\nVous pouvez définir un nom d'entité personnalisé avant de l'ajouter.",
+        "data": {
           "entity_name": "Nom de l'entité"
         }
       }
@@ -18,6 +32,8 @@
       "not_found": "Aucune correspondance exacte n'a été trouvée pour cette station.",
       "ambiguous": "Plus d'une station correspond. Précisez l'adresse, le code postal ou la bannière.",
       "invalid_station": "La station sélectionnée n'a pas pu être validée.",
+      "location_not_set": "L'emplacement de Home Assistant n'est pas configuré.",
+      "no_station_with_coordinates": "Aucune station avec coordonnées n'a été trouvée dans le flux du fournisseur.",
       "unknown": "Erreur inattendue."
     },
     "abort": {
