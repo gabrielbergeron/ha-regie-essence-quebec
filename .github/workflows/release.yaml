@@ -1,0 +1,87 @@
+name: Finalize published release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out target branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.target_commitish }}
+
+      - name: Normalize release version
+        id: version
+        shell: bash
+        run: |
+          RAW_TAG="${{ github.event.release.tag_name }}"
+          VERSION="${RAW_TAG#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Release tag must look like v1.2.3 or v1.2.3-beta.1"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Update integration manifest version
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest_path = Path("custom_components/regie_essence_quebec/manifest.json")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          manifest["version"] = "${{ steps.version.outputs.version }}"
+          manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - name: Commit version bump to branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add custom_components/regie_essence_quebec/manifest.json
+          git commit -m "Finalize release ${{ github.event.release.tag_name }}" || echo "No version changes to commit"
+
+      - name: Push version bump
+        shell: bash
+        run: |
+          git push origin HEAD:${{ github.event.release.target_commitish }}
+
+      - name: Build release zip
+        shell: bash
+        run: |
+          python - <<'PY'
+          import pathlib
+          import subprocess
+          import zipfile
+
+          output = pathlib.Path("ha-regie-essence-quebec.zip")
+          tracked_files = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
+
+          with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for file_name in tracked_files:
+              path = pathlib.Path(file_name)
+              if path.is_file():
+                archive.write(path, arcname=file_name)
+          PY
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "ha-regie-essence-quebec.zip" \
+            --clobber

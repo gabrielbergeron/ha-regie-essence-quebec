@@ -85,7 +85,10 @@ class RegieEssenceQuebecConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_manual(self, user_input: dict[str, Any] | None = None):
         errors: dict[str, str] = {}
-        placeholders = {"candidates": ""}
+        placeholders = {
+            "candidates": "",
+            "website_url": "https://regieessencequebec.ca/",
+        }
 
         if user_input is not None:
             cleaned_input = {key: str(value).strip() for key, value in user_input.items()}
