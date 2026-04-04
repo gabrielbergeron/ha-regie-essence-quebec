@@ -1,9 +1,12 @@
-name: Finalize published release
+name: Publish release
 
 on:
-  release:
-    types:
-      - published
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, for example 0.1.2 or v0.1.2"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -13,25 +16,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out target branch
+      - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.target_commitish }}
 
-      - name: Normalize release version
+      - name: Normalize version
         id: version
         shell: bash
         run: |
-          RAW_TAG="${{ github.event.release.tag_name }}"
-          VERSION="${RAW_TAG#v}"
+          RAW_VERSION="${{ github.event.inputs.version }}"
+          VERSION="${RAW_VERSION#v}"
+          TAG="v${VERSION}"
 
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
-            echo "Release tag must look like v1.2.3 or v1.2.3-beta.1"
+            echo "Version must look like 1.2.3 or 1.2.3-beta.1"
+            exit 1
+          fi
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists"
             exit 1
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Update integration manifest version
         shell: bash
@@ -46,15 +55,59 @@ jobs:
           manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
           PY
 
-      - name: Commit version bump to branch
+      - name: Commit version bump
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add custom_components/regie_essence_quebec/manifest.json
-          git commit -m "Finalize release ${{ github.event.release.tag_name }}" || echo "No version changes to commit"
+          git commit -m "Release ${{ steps.version.outputs.tag }}" || echo "No version changes to commit"
 
       - name: Push version bump
         shell: bash
         run: |
-          git push origin HEAD:${{ github.event.release.target_commitish }}
+          git push origin HEAD:${GITHUB_REF_NAME}
+
+      - name: Export release drafter notes
+        id: draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/releases" > releases.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          releases = json.loads(Path("releases.json").read_text(encoding="utf-8"))
+          draft_release = next((release for release in releases if release.get("draft")), None)
+          if draft_release is None:
+            raise SystemExit("No draft release found. Let Release Drafter create one before publishing a release.")
+
+          Path("draft_notes.md").write_text(draft_release.get("body") or "## Changes\n\n- No release notes were generated.", encoding="utf-8")
+          Path("draft_release_id.txt").write_text(str(draft_release["id"]), encoding="utf-8")
+          PY
+
+      - name: Create and push tag
+        shell: bash
+        run: |
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Create GitHub release from draft notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --notes-file draft_notes.md
+
+      - name: Delete consumed draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh api \
+            --method DELETE \
+            "repos/${GITHUB_REPOSITORY}/releases/$(cat draft_release_id.txt)"
